@@ -1,35 +1,43 @@
-import React, { useState } from "react"
-import { FaStar } from "react-icons/fa"
+import React, { useState } from 'react'
+import { v4 } from 'uuid'
 
+import colorData from "./data/color-data.json"
+import ColorList from "./Components/ColorList"
+import AddColorForm from './Components/AddColorForm'
 
-export default function App() {
-  return <StarRating totalStars={5} /> 
-}
-
-function StarRating({ totalStars = 5, style = {} }) {
-  const [selectedStars, setSelectedStars] = useState(0)
+function App() {
+  const [colors, setColors] = useState(colorData)
   return (
-    <div style={style}>
-      {createArray(totalStars).map((n, i) => (
-        <Star
-          key={i}
-          selected={selectedStars > i}
-          onSelect={() => setSelectedStars(i + 1)}
-        />
-      ))}
-      <p>
-        {selectedStars} of {totalStars} stars
-      </p>
-    </div>
-  )
+    <>
+      <AddColorForm
+        onNewColor={(title, color) => {
+          const newColors = [
+            ...colors,
+            {
+              id: v4(),
+              rating: 0,
+              title,
+              color,
+            }
+          ]
+          setColors(newColors)
+        }}
+      />
+      <ColorList
+        colors={colors}
+        onRemoveColor={id => {
+          const newColors = colors.filter(color => color.id !== id)
+          setColors(newColors)
+        }}
+        onRateColor={(id, rating) => {
+          const newColors = colors.map(color =>
+            color.id === id ? { ...color, rating } : color
+            )
+            setColors(newColors)
+          }}
+          />
+    </>
+  );
 }
 
-function Star({ selected = false, onSelect = () => {} }) {
-  return (
-    <FaStar color={selected ? "red" : "grey"} onClick={onSelect} />
-  )
-}
-
-function createArray(length) {
-  return [...Array(length)]
-}
+export default App;
